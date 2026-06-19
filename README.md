@@ -9,6 +9,9 @@ footprint (~a few MB, ~30–80 MB idle).
 The wire format is **identical** to the macOS Swift app: the same password decodes
 strings across both (enforced by golden-vector tests in `src-tauri/src/codec.rs`).
 
+The UI is available in **English** and **正體中文** — auto-detected from the system
+locale, switchable from the header (`EN` / `中`), and remembered between launches.
+
 ## How it works
 
 Three reversible stages (see [`src-tauri/src/codec.rs`](src-tauri/src/codec.rs)):

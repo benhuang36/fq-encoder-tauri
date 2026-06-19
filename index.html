@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="/src/styles.css" />
@@ -13,23 +13,24 @@
         <div class="logo">✦</div>
         <div class="title-block">
           <h1>FQEncoder</h1>
-          <p class="subtitle">把文字變成 F U C K Y O u</p>
+          <p class="subtitle" data-i18n="subtitle"></p>
         </div>
-        <button id="settingsBtn" class="icon-btn" title="設定密碼" aria-label="設定密碼">⚙</button>
+        <button id="langBtn" class="icon-btn" title="Language"></button>
+        <button id="settingsBtn" class="icon-btn" data-i18n-title="settingsTitle">⚙</button>
       </header>
 
       <section id="settings" class="settings hidden">
-        <label for="password">編碼密碼</label>
+        <label for="password" data-i18n="passwordLabel"></label>
         <div class="password-row">
-          <input id="password" type="password" placeholder="留空使用預設密碼" autocomplete="off" />
-          <button id="reveal" class="icon-btn" title="顯示／隱藏" aria-label="顯示或隱藏密碼">👁</button>
+          <input id="password" type="password" data-i18n-placeholder="passwordPlaceholder" autocomplete="off" />
+          <button id="reveal" class="icon-btn" data-i18n-title="revealTitle">👁</button>
         </div>
-        <p class="hint">相同文字在不同密碼下會編出完全不同的結果。編碼與解碼必須使用相同密碼。</p>
+        <p class="hint" data-i18n="passwordHint"></p>
       </section>
 
       <div class="card">
-        <div class="card-label">輸入</div>
-        <textarea id="input" placeholder="輸入任何文字，或貼上編碼字串…"></textarea>
+        <div class="card-label" data-i18n="inputLabel"></div>
+        <textarea id="input" data-i18n-placeholder="inputPlaceholder"></textarea>
       </div>
 
       <div class="actions">
@@ -39,13 +40,13 @@
 
       <div class="card">
         <div class="card-label">
-          <span>輸出</span>
-          <button id="copyBtn" class="copy hidden">複製</button>
+          <span data-i18n="outputLabel"></span>
+          <button id="copyBtn" class="copy hidden"></button>
         </div>
-        <textarea id="output" readonly placeholder="結果會顯示在這裡"></textarea>
+        <textarea id="output" readonly data-i18n-placeholder="outputPlaceholder"></textarea>
       </div>
 
-      <footer id="footer" class="footer">Encode 任意文字 · Decode 只接受 F U C K Y O u</footer>
+      <footer id="footer" class="footer"></footer>
     </main>
   </body>
 </html>

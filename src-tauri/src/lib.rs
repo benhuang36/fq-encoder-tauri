@@ -29,10 +29,23 @@ fn encode(text: String, key: String) -> String {
 
 #[tauri::command]
 fn decode(text: String, key: String) -> Result<String, String> {
-    codec::decode(&text, &key).map_err(|e| e.to_string())
+    // Return a stable error code; the frontend localises it.
+    codec::decode(&text, &key).map_err(|e| e.code())
 }
 
 // MARK: - Helpers
+
+/// Tray menu labels (toggle, show, quit) localised by OS locale: zh* → 正體中文.
+fn tray_labels() -> (&'static str, &'static str, &'static str) {
+    let zh = sys_locale::get_locale()
+        .map(|l| l.to_lowercase().starts_with("zh"))
+        .unwrap_or(false);
+    if zh {
+        ("自動監聽剪貼簿", "打開主視窗", "結束 FQEncoder")
+    } else {
+        ("Auto-monitor clipboard", "Open window", "Quit FQEncoder")
+    }
+}
 
 fn read_password(app: &tauri::AppHandle) -> String {
     if let Ok(store) = app.store(STORE_FILE) {
@@ -118,11 +131,12 @@ pub fn run() {
             app.manage(state.clone());
 
             // Tray menu.
+            let (lbl_toggle, lbl_show, lbl_quit) = tray_labels();
             let toggle = CheckMenuItem::with_id(
-                app, "toggle", "自動監聽剪貼簿", true, false, None::<&str>,
+                app, "toggle", lbl_toggle, true, false, None::<&str>,
             )?;
-            let show = MenuItem::with_id(app, "show", "打開主視窗", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "結束 FQEncoder", true, None::<&str>)?;
+            let show = MenuItem::with_id(app, "show", lbl_show, true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", lbl_quit, true, None::<&str>)?;
             let menu = Menu::with_items(
                 app,
                 &[&toggle, &PredefinedMenuItem::separator(app)?, &show, &quit],

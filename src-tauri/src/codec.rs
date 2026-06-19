@@ -36,6 +36,19 @@ impl std::fmt::Display for CodecError {
 
 impl std::error::Error for CodecError {}
 
+impl CodecError {
+    /// Stable machine code for the frontend to localise (UI strings live in
+    /// the web layer, not here, so the codec stays language-agnostic).
+    pub fn code(&self) -> String {
+        match self {
+            CodecError::InvalidLength => "invalid_length".into(),
+            CodecError::InvalidCharacter(c) => format!("invalid_character:{c}"),
+            CodecError::InvalidByte => "invalid_byte".into(),
+            CodecError::NotUtf8 => "not_utf8".into(),
+        }
+    }
+}
+
 fn value_of(c: char) -> Option<u16> {
     ALPHABET.iter().position(|&a| a == c).map(|i| i as u16)
 }
