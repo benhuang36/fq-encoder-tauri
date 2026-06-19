@@ -1,0 +1,43 @@
+name: release
+
+# Push a version tag (e.g. v0.1.0) to build all three platforms and assemble
+# a GitHub Release. The release is created as a DRAFT — review the attached
+# installers, then publish it manually from the Releases page.
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+          - os: windows-latest
+          - os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Linux WebKit deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - run: npm ci
+      - uses: tauri-apps/tauri-action@v0.6.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "FQEncoder ${{ github.ref_name }}"
+          releaseBody: "Cross-platform desktop builds. Unsigned — see the README for clearing Gatekeeper/SmartScreen."
+          releaseDraft: true
+          prerelease: false
