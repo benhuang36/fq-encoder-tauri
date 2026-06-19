@@ -55,3 +55,11 @@ src-tauri/src/
 ├── codec.rs          keyed 3-stage codec + golden-vector parity tests
 └── lib.rs            commands, tray, store-backed password, clipboard monitor
 ```
+
+## Related
+
+- [**fq-encoder**](https://github.com/benhuang36/fq-encoder) — the original native macOS (SwiftUI) app.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
