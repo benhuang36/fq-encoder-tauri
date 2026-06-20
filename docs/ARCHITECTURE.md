@@ -1,5 +1,7 @@
 # Architecture — a Tauri walkthrough
 
+**English** · [繁體中文](ARCHITECTURE.zh-Hant.md)
+
 This project is small but exercises most of what you need to know to build a real
 Tauri 2 app: commands, plugins, the permission model, a tray icon, background work,
 shared state, and the JS↔Rust bridge. This doc maps the files to those concepts so

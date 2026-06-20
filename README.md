@@ -59,7 +59,7 @@ src-tauri/src/
 └── lib.rs            commands, tray, store-backed password, clipboard monitor
 ```
 
-> New to Tauri? See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for an annotated walkthrough of how the pieces fit together.
+> New to Tauri? See the annotated walkthrough of how the pieces fit together: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ([繁體中文](docs/ARCHITECTURE.zh-Hant.md)).
 
 ## Related
 
