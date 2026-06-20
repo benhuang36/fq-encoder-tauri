@@ -59,6 +59,8 @@ src-tauri/src/
 └── lib.rs            commands, tray, store-backed password, clipboard monitor
 ```
 
+> New to Tauri? See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for an annotated walkthrough of how the pieces fit together.
+
 ## Related
 
 - [**fq-encoder**](https://github.com/benhuang36/fq-encoder) — the original native macOS (SwiftUI) app.
