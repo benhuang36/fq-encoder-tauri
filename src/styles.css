@@ -78,6 +78,53 @@ body {
   line-height: 1.5;
 }
 
+/* Settings rows */
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.settings .setting + .setting,
+.settings .setting + .checkbox-row,
+.settings .checkbox-row + .setting {
+  margin-top: 14px;
+}
+.segmented {
+  display: flex;
+  gap: 6px;
+}
+.segmented button {
+  flex: 1;
+  padding: 7px;
+  font-size: 13px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 9px;
+  cursor: pointer;
+}
+.segmented button.active {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.45);
+  font-weight: 600;
+}
+.hotkey-input {
+  flex: 1;
+  padding: 8px 12px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  color: #1c1c1e;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+.hotkey-input.recording {
+  background: #ffe14d;
+  font-style: italic;
+}
+
 /* Cards */
 .card {
   display: flex;

@@ -9,10 +9,14 @@ use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_clipboard_manager::ClipboardExt;
+use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use tauri_plugin_store::StoreExt;
 
 const STORE_FILE: &str = "settings.json";
 const PASSWORD_KEY: &str = "fq.encodingPassword";
+const HOTKEY_KEY: &str = "fq.hotkey";
+/// Cross-platform default: ⌘⇧E on macOS, Ctrl+Shift+E on Windows/Linux.
+const DEFAULT_HOTKEY: &str = "CmdOrCtrl+Shift+E";
 
 /// Shared state for the clipboard auto-monitor.
 struct MonitorState {
@@ -20,6 +24,9 @@ struct MonitorState {
     last_seen: Mutex<Option<String>>,
     last_written: Mutex<Option<String>>,
 }
+
+/// Currently-registered global hotkey accelerator string.
+struct HotkeyState(Mutex<String>);
 
 // MARK: - Commands (called from the web UI)
 
@@ -58,7 +65,44 @@ fn qr_svg(text: String) -> Result<String, String> {
         .build())
 }
 
+/// Register a new global hotkey, replacing the current one. Persists on success.
+#[tauri::command]
+fn set_hotkey(
+    app: tauri::AppHandle,
+    accelerator: String,
+    state: tauri::State<HotkeyState>,
+) -> Result<String, String> {
+    let new_sc: Shortcut = accelerator.parse().map_err(|_| "hotkey_invalid".to_string())?;
+    let gs = app.global_shortcut();
+    let mut current = state.0.lock().unwrap();
+    if let Ok(old) = current.parse::<Shortcut>() {
+        let _ = gs.unregister(old);
+    }
+    if gs.register(new_sc).is_err() {
+        // Restore the previous binding on failure.
+        if let Ok(old) = current.parse::<Shortcut>() {
+            let _ = gs.register(old);
+        }
+        return Err("hotkey_invalid".to_string());
+    }
+    *current = accelerator.clone();
+    if let Ok(store) = app.store(STORE_FILE) {
+        store.set(HOTKEY_KEY, accelerator.clone());
+        let _ = store.save();
+    }
+    Ok(accelerator)
+}
+
 // MARK: - Helpers
+
+/// Bring the main window to the front.
+fn show_main(app: &tauri::AppHandle) {
+    if let Some(w) = app.get_webview_window("main") {
+        let _ = w.show();
+        let _ = w.unminimize();
+        let _ = w.set_focus();
+    }
+}
 
 /// Tray menu labels (toggle, show, quit) localised by OS locale: zh* → 正體中文.
 fn tray_labels() -> (&'static str, &'static str, &'static str) {
@@ -142,8 +186,17 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(
+            tauri_plugin_global_shortcut::Builder::new()
+                .with_handler(|app, _shortcut, event| {
+                    if event.state == ShortcutState::Pressed {
+                        show_main(app);
+                    }
+                })
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
-            encode, decode, stego_hide, stego_reveal, qr_svg
+            encode, decode, stego_hide, stego_reveal, qr_svg, set_hotkey
         ])
         .setup(|app| {
             // Menu-bar resident: no Dock icon on macOS.
@@ -156,6 +209,18 @@ pub fn run() {
                 last_written: Mutex::new(None),
             });
             app.manage(state.clone());
+
+            // Register the global hotkey (stored value, else default).
+            let accel = app
+                .store(STORE_FILE)
+                .ok()
+                .and_then(|s| s.get(HOTKEY_KEY))
+                .and_then(|v| v.as_str().map(String::from))
+                .unwrap_or_else(|| DEFAULT_HOTKEY.to_string());
+            if let Ok(sc) = accel.parse::<Shortcut>() {
+                let _ = app.global_shortcut().register(sc);
+            }
+            app.manage(HotkeyState(Mutex::new(accel)));
 
             // Tray menu.
             let (lbl_toggle, lbl_show, lbl_quit) = tray_labels();
@@ -182,12 +247,7 @@ pub fn run() {
                         state.enabled.store(now, Ordering::Relaxed);
                         let _ = toggle_item.set_checked(now);
                     }
-                    "show" => {
-                        if let Some(w) = app.get_webview_window("main") {
-                            let _ = w.show();
-                            let _ = w.set_focus();
-                        }
-                    }
+                    "show" => show_main(app),
                     "quit" => app.exit(0),
                     _ => {}
                 })

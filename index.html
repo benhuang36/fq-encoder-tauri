@@ -15,23 +15,47 @@
           <h1>FQEncoder</h1>
           <p class="subtitle" data-i18n="subtitle"></p>
         </div>
-        <button id="langBtn" class="icon-btn" title="Language"></button>
         <button id="settingsBtn" class="icon-btn" data-i18n-title="settingsTitle">⚙</button>
       </header>
 
       <section id="settings" class="settings hidden">
-        <label for="password" data-i18n="passwordLabel"></label>
-        <div class="password-row">
-          <input id="password" type="password" data-i18n-placeholder="passwordPlaceholder" autocomplete="off" />
-          <button id="reveal" class="icon-btn" data-i18n-title="revealTitle">👁</button>
+        <div class="setting">
+          <label data-i18n="langLabel"></label>
+          <div class="segmented" id="langSeg">
+            <button data-lang="en">English</button>
+            <button data-lang="zh-Hant">中文</button>
+          </div>
         </div>
-        <p class="hint" data-i18n="passwordHint"></p>
+
+        <div class="setting">
+          <label for="password" data-i18n="passwordLabel"></label>
+          <div class="password-row">
+            <input id="password" type="password" data-i18n-placeholder="passwordPlaceholder" autocomplete="off" />
+            <button id="reveal" class="icon-btn" data-i18n-title="revealTitle">👁</button>
+          </div>
+          <p class="hint" data-i18n="passwordHint"></p>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="advancedToggle" />
+          <span data-i18n="advancedLabel"></span>
+        </label>
+
+        <div class="setting">
+          <label data-i18n="hotkeyLabel"></label>
+          <div class="password-row">
+            <button id="hotkeyBtn" class="hotkey-input"></button>
+            <button id="hotkeyReset" class="icon-btn" data-i18n-title="hotkeyResetTitle">↺</button>
+          </div>
+          <p class="hint" data-i18n="hotkeyHint"></p>
+          <p id="hotkeyStatus" class="hint"></p>
+        </div>
       </section>
 
       <nav class="tabs">
         <button class="tab active" data-tab="codec" data-i18n="tabCodec"></button>
-        <button class="tab" data-tab="avalanche" data-i18n="tabAvalanche"></button>
-        <button class="tab" data-tab="stego" data-i18n="tabStego"></button>
+        <button class="tab" id="tabAvalancheBtn" data-tab="avalanche" data-i18n="tabAvalanche"></button>
+        <button class="tab" id="tabStegoBtn" data-tab="stego" data-i18n="tabStego"></button>
       </nav>
 
       <!-- ── Codec ── -->

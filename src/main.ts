@@ -16,6 +16,13 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     revealTitle: "Show / hide password",
     passwordHint:
       "The same text encodes to a completely different string per password. Encoding and decoding must use the same password.",
+    langLabel: "Language",
+    advancedLabel: "Advanced modes (Avalanche & Stego)",
+    hotkeyLabel: "Show-window hotkey",
+    hotkeyHint: "A global shortcut to bring this window up from anywhere.",
+    hotkeyPrompt: "Press keys…",
+    hotkeyResetTitle: "Reset to default",
+    hotkey_invalid: "That shortcut couldn't be registered (maybe already in use).",
     tabCodec: "Codec",
     tabAvalanche: "Avalanche",
     tabStego: "Stego",
@@ -63,6 +70,13 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     passwordPlaceholder: "留空使用預設密碼",
     revealTitle: "顯示／隱藏密碼",
     passwordHint: "相同文字在不同密碼下會編出完全不同的結果。編碼與解碼必須使用相同密碼。",
+    langLabel: "語言",
+    advancedLabel: "進階玩法（雪崩與隱寫）",
+    hotkeyLabel: "顯示主視窗熱鍵",
+    hotkeyHint: "在任何地方都能呼出本視窗的全域快速鍵。",
+    hotkeyPrompt: "請按下按鍵…",
+    hotkeyResetTitle: "重設為預設值",
+    hotkey_invalid: "無法註冊這個快速鍵（可能已被占用）。",
     tabCodec: "編解碼",
     tabAvalanche: "雪崩",
     tabStego: "隱寫",
@@ -105,12 +119,19 @@ const STRINGS: Record<Lang, Record<string, string>> = {
   },
 };
 
+const ADV_KEY = "fq.advanced";
+const HOTKEY_KEY = "fq.hotkey";
+const DEFAULT_HOTKEY = "CmdOrCtrl+Shift+E";
+
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const password = $<HTMLInputElement>("password");
 const footer = $<HTMLElement>("footer");
 
 let store: Store | undefined;
 let lang: Lang = "en";
+let advanced = false;
+let hotkey = DEFAULT_HOTKEY;
+let recording = false;
 
 const t = (key: string) => STRINGS[lang][key] ?? key;
 
@@ -123,7 +144,6 @@ function localiseError(code: string): string {
 
 function applyLang() {
   document.documentElement.lang = lang === "zh-Hant" ? "zh-Hant" : "en";
-  $("langBtn").textContent = lang === "en" ? "中" : "EN";
   document.querySelectorAll<HTMLElement>("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n!);
   });
@@ -133,10 +153,66 @@ function applyLang() {
   document.querySelectorAll<HTMLElement>("[data-i18n-title]").forEach((el) => {
     el.title = t(el.dataset.i18nTitle!);
   });
+  document.querySelectorAll<HTMLElement>("#langSeg button").forEach((b) =>
+    b.classList.toggle("active", b.dataset.lang === lang),
+  );
   $("copyBtn").textContent = t("copy");
   $("stHiddenCopy").textContent = t("copy");
+  renderHotkey();
   if (!footer.classList.contains("error")) footer.textContent = t("footerHint");
   if (currentTab === "avalanche") renderAvalanche();
+}
+
+// ── Advanced modes + global hotkey ────────────────────────────────────
+const advancedToggle = $<HTMLInputElement>("advancedToggle");
+const hotkeyBtn = $<HTMLButtonElement>("hotkeyBtn");
+const hotkeyStatus = $<HTMLElement>("hotkeyStatus");
+
+function applyAdvanced() {
+  advancedToggle.checked = advanced;
+  $("tabAvalancheBtn").classList.toggle("hidden", !advanced);
+  $("tabStegoBtn").classList.toggle("hidden", !advanced);
+  if (!advanced && currentTab !== "codec") setTab("codec");
+}
+
+function renderHotkey() {
+  hotkeyBtn.textContent = recording ? t("hotkeyPrompt") : hotkey;
+  hotkeyBtn.classList.toggle("recording", recording);
+}
+
+async function applyHotkey(accel: string) {
+  recording = false;
+  try {
+    hotkey = await invoke<string>("set_hotkey", { accelerator: accel });
+    hotkeyStatus.textContent = "";
+    hotkeyStatus.classList.remove("error");
+  } catch (code) {
+    hotkeyStatus.textContent = localiseError(String(code));
+    hotkeyStatus.classList.add("error");
+  }
+  renderHotkey();
+}
+
+function onRecordKey(e: KeyboardEvent) {
+  if (!recording) return;
+  e.preventDefault();
+  if (e.key === "Escape") {
+    recording = false;
+    renderHotkey();
+    return;
+  }
+  if (["Meta", "Control", "Alt", "Shift", "Dead"].includes(e.key)) return; // wait for the main key
+  const mods: string[] = [];
+  if (e.metaKey) mods.push("Cmd");
+  if (e.ctrlKey) mods.push("Control");
+  if (e.altKey) mods.push("Alt");
+  if (e.shiftKey) mods.push("Shift");
+  let main = "";
+  if (e.code.startsWith("Key")) main = e.code.slice(3);
+  else if (e.code.startsWith("Digit")) main = e.code.slice(5);
+  else if (/^F([1-9]|1[0-2])$/.test(e.code)) main = e.code;
+  if (!main || mods.length === 0) return; // need a modifier + a letter/digit/F-key
+  applyHotkey([...mods, main].join("+"));
 }
 
 const detectLang = (): Lang =>
@@ -296,7 +372,11 @@ window.addEventListener("DOMContentLoaded", async () => {
   store = await load(STORE_FILE, { autoSave: true, defaults: {} });
   password.value = (await store.get<string>(PASSWORD_KEY)) ?? "";
   lang = (await store.get<Lang>(LANG_KEY)) ?? detectLang();
+  advanced = (await store.get<boolean>(ADV_KEY)) ?? false;
+  hotkey = (await store.get<string>(HOTKEY_KEY)) ?? DEFAULT_HOTKEY;
   applyLang();
+  applyAdvanced();
+  renderHotkey();
 
   document.querySelectorAll<HTMLElement>(".tab").forEach((b) =>
     b.addEventListener("click", () => setTab(b.dataset.tab as Tab)),
@@ -318,11 +398,27 @@ window.addEventListener("DOMContentLoaded", async () => {
   $("stRevealBtn").addEventListener("click", runReveal);
   stHiddenCopy.addEventListener("click", () => copyToClipboard(stHidden.value, stHiddenCopy));
 
-  $("langBtn").addEventListener("click", () => {
-    lang = lang === "en" ? "zh-Hant" : "en";
-    store?.set(LANG_KEY, lang);
-    applyLang();
+  document.querySelectorAll<HTMLElement>("#langSeg button").forEach((b) =>
+    b.addEventListener("click", () => {
+      lang = b.dataset.lang as Lang;
+      store?.set(LANG_KEY, lang);
+      applyLang();
+    }),
+  );
+  advancedToggle.addEventListener("change", () => {
+    advanced = advancedToggle.checked;
+    store?.set(ADV_KEY, advanced);
+    applyAdvanced();
   });
+  hotkeyBtn.addEventListener("click", () => {
+    recording = true;
+    hotkeyStatus.textContent = "";
+    hotkeyStatus.classList.remove("error");
+    renderHotkey();
+  });
+  $("hotkeyReset").addEventListener("click", () => applyHotkey(DEFAULT_HOTKEY));
+  window.addEventListener("keydown", onRecordKey);
+
   $("settingsBtn").addEventListener("click", () => $("settings").classList.toggle("hidden"));
   password.addEventListener("input", () => store?.set(PASSWORD_KEY, password.value));
   $("reveal").addEventListener("click", () => {

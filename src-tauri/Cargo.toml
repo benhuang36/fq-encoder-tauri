@@ -27,4 +27,5 @@ tauri-plugin-clipboard-manager = "2.3.2"
 tauri-plugin-store = "2.4.3"
 sys-locale = "0.3.2"
 qrcode = { version = "0.14.1", default-features = false, features = ["svg"] }
+tauri-plugin-global-shortcut = "2.3.2"
 

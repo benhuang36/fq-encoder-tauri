@@ -10,13 +10,15 @@ The wire format is **identical** to the macOS Swift app: the same password decod
 strings across both (enforced by golden-vector tests in `src-tauri/src/codec.rs`).
 
 The UI is available in **English** and **正體中文** — auto-detected from the system
-locale, switchable from the header (`EN` / `中`), and remembered between launches.
+locale, switchable in **Settings** (⚙), and remembered between launches. Settings also
+holds the password, an **Advanced modes** toggle, and a customizable global hotkey to
+summon the window from anywhere (default `⌘⇧E` / `Ctrl+Shift+E`).
 
-Three modes (tabs): **Codec** (encode/decode, with a **QR** button that turns the
-output into a scannable QR code), **Avalanche** (a live visualizer —
-flip one character and watch ~80% of the output light up, demonstrating the diffusion
-stage), and **Stego** (hide the payload inside an innocent-looking sentence using
-invisible zero-width characters, then reveal it).
+The **Codec** tab (encode/decode) includes a **QR** button that turns the output into
+a scannable QR code. Enabling **Advanced modes** in Settings reveals two more tabs:
+**Avalanche** (a live visualizer — flip one character and watch ~80% of the output
+light up, demonstrating the diffusion stage) and **Stego** (hide the payload inside an
+innocent-looking sentence using invisible zero-width characters, then reveal it).
 
 ## How it works
 
