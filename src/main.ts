@@ -33,6 +33,10 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     copy: "Copy",
     copied: "Copied",
     qrBtn: "QR",
+    qrSave: "Save image",
+    qrCopyImg: "Copy image",
+    qrSaved: "Saved",
+    qrImgCopied: "Image copied",
     qr_too_long: "Text is too long to fit in a QR code.",
     footerHint: "Encode any text · Decode accepts only F U C K Y O u",
     invalid_length: "Length must be a multiple of 3 — this isn't a valid encoded string.",
@@ -87,6 +91,10 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     copy: "複製",
     copied: "已複製",
     qrBtn: "QR",
+    qrSave: "存成圖片",
+    qrCopyImg: "複製圖片",
+    qrSaved: "已儲存",
+    qrImgCopied: "圖片已複製",
     qr_too_long: "文字太長，無法放進 QR code。",
     footerHint: "Encode 任意文字 · Decode 只接受 F U C K Y O u",
     invalid_length: "輸入長度必須是 3 的倍數，這不是合法的編碼字串。",
@@ -255,6 +263,15 @@ const output = $<HTMLTextAreaElement>("output");
 const copyBtn = $<HTMLButtonElement>("copyBtn");
 const qrBtn = $<HTMLButtonElement>("qrBtn");
 const qrBox = $<HTMLElement>("qrBox");
+const qrActions = $<HTMLElement>("qrActions");
+const qrStatus = $<HTMLElement>("qrStatus");
+
+function hideQr() {
+  qrBox.classList.add("hidden");
+  qrBox.replaceChildren();
+  qrActions.classList.add("hidden");
+  qrStatus.textContent = "";
+}
 
 function setOutput(text: string, isError = false) {
   output.value = isError ? "" : text;
@@ -263,20 +280,44 @@ function setOutput(text: string, isError = false) {
   const empty = isError || text.length === 0;
   copyBtn.classList.toggle("hidden", empty);
   qrBtn.classList.toggle("hidden", empty);
-  qrBox.classList.add("hidden"); // a new result invalidates the old QR
-  qrBox.replaceChildren();
+  hideQr(); // a new result invalidates the old QR
 }
 
 async function toggleQr() {
   if (!qrBox.classList.contains("hidden")) {
-    qrBox.classList.add("hidden");
+    hideQr();
     return;
   }
   try {
     qrBox.innerHTML = await invoke<string>("qr_svg", { text: output.value });
     qrBox.classList.remove("hidden");
+    qrActions.classList.remove("hidden");
   } catch (code) {
     setOutput(localiseError(String(code)), true);
+  }
+}
+
+function flashQrStatus(msg: string, isError = false) {
+  qrStatus.textContent = msg;
+  qrStatus.classList.toggle("error", isError);
+  if (!isError) setTimeout(() => (qrStatus.textContent = ""), 1800);
+}
+
+async function saveQrImage() {
+  try {
+    const path = await invoke<string | null>("qr_save", { text: output.value });
+    if (path) flashQrStatus(t("qrSaved"));
+  } catch (code) {
+    flashQrStatus(localiseError(String(code)), true);
+  }
+}
+
+async function copyQrImage() {
+  try {
+    await invoke("qr_copy_image", { text: output.value });
+    flashQrStatus(t("qrImgCopied"));
+  } catch (code) {
+    flashQrStatus(localiseError(String(code)), true);
   }
 }
 
@@ -438,4 +479,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
   copyBtn.addEventListener("click", () => copyToClipboard(output.value, copyBtn));
   qrBtn.addEventListener("click", toggleQr);
+  $("qrSaveBtn").addEventListener("click", saveQrImage);
+  $("qrCopyImgBtn").addEventListener("click", copyQrImage);
 });

@@ -232,6 +232,22 @@ textarea:focus {
   width: 200px;
   height: 200px;
 }
+.qr-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.qr-actions .copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+}
+.qr-actions svg {
+  display: block;
+}
 
 .footer {
   text-align: center;

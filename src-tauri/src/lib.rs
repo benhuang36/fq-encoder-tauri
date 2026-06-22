@@ -65,6 +65,60 @@ fn qr_svg(text: String) -> Result<String, String> {
         .build())
 }
 
+/// Render `text` as a QR PNG (bytes).
+fn qr_png(text: &str) -> Result<Vec<u8>, String> {
+    use qrcode::QrCode;
+    let code = QrCode::new(text.as_bytes()).map_err(|_| "qr_too_long".to_string())?;
+    let luma = code
+        .render::<image::Luma<u8>>()
+        .min_dimensions(600, 600)
+        .quiet_zone(true)
+        .build();
+    let mut png = Vec::new();
+    image::DynamicImage::ImageLuma8(luma)
+        .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png)
+        .map_err(|e| e.to_string())?;
+    Ok(png)
+}
+
+/// Save the QR for `text` as a PNG via a native save dialog. Returns the saved
+/// path, or `None` if the user cancelled.
+#[tauri::command]
+fn qr_save(app: tauri::AppHandle, text: String) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+    let png = qr_png(&text)?;
+    let chosen = app
+        .dialog()
+        .file()
+        .add_filter("PNG image", &["png"])
+        .set_file_name("fqencoder-qr.png")
+        .blocking_save_file();
+    match chosen {
+        Some(path) => {
+            let pb = path.into_path().map_err(|e| e.to_string())?;
+            std::fs::write(&pb, png).map_err(|e| e.to_string())?;
+            Ok(Some(pb.to_string_lossy().into_owned()))
+        }
+        None => Ok(None),
+    }
+}
+
+/// Copy the QR for `text` to the clipboard as an image.
+#[tauri::command]
+fn qr_copy_image(app: tauri::AppHandle, text: String) -> Result<(), String> {
+    use qrcode::QrCode;
+    let code = QrCode::new(text.as_bytes()).map_err(|_| "qr_too_long".to_string())?;
+    let luma = code
+        .render::<image::Luma<u8>>()
+        .min_dimensions(600, 600)
+        .quiet_zone(true)
+        .build();
+    let rgba = image::DynamicImage::ImageLuma8(luma).to_rgba8();
+    let (w, h) = (rgba.width(), rgba.height());
+    let img = tauri::image::Image::new_owned(rgba.into_raw(), w, h);
+    app.clipboard().write_image(&img).map_err(|e| e.to_string())
+}
+
 /// Register a new global hotkey, replacing the current one. Persists on success.
 #[tauri::command]
 fn set_hotkey(
@@ -186,6 +240,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, _shortcut, event| {
@@ -196,7 +251,7 @@ pub fn run() {
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![
-            encode, decode, stego_hide, stego_reveal, qr_svg, set_hotkey
+            encode, decode, stego_hide, stego_reveal, qr_svg, qr_save, qr_copy_image, set_hotkey
         ])
         .setup(|app| {
             // Menu-bar resident: no Dock icon on macOS.

@@ -15,7 +15,8 @@ holds the password, an **Advanced modes** toggle, and a customizable global hotk
 summon the window from anywhere (default `⌘⇧E` / `Ctrl+Shift+E`).
 
 The **Codec** tab (encode/decode) includes a **QR** button that turns the output into
-a scannable QR code. Enabling **Advanced modes** in Settings reveals two more tabs:
+a scannable QR code, which you can **save as a PNG** or **copy to the clipboard as an
+image** to share. Enabling **Advanced modes** in Settings reveals two more tabs:
 **Avalanche** (a live visualizer — flip one character and watch ~80% of the output
 light up, demonstrating the diffusion stage) and **Stego** (hide the payload inside an
 innocent-looking sentence using invisible zero-width characters, then reveal it).
