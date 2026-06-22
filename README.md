@@ -6,6 +6,10 @@ icon and loop-safe automatic clipboard encode/decode. Runs on **macOS, Windows, 
 Linux** via [Tauri 2](https://tauri.app) (Rust backend + web frontend), for a tiny
 footprint (~a few MB, ~30–80 MB idle).
 
+<p align="center">
+  <img src="docs/screenshot.png" alt="FQEncoder window — encoding “Hi there” into the F U C K Y O u alphabet" width="320">
+</p>
+
 The wire format is **identical** to the macOS Swift app: the same password decodes
 strings across both (enforced by golden-vector tests in `src-tauri/src/codec.rs`).
 
