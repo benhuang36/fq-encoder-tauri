@@ -471,6 +471,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   $("hotkeyReset").addEventListener("click", () => applyHotkey(DEFAULT_HOTKEY));
   window.addEventListener("keydown", onRecordKey);
 
+  // Suppress the webview's browser-style context menu (Reload / Back / Inspect)
+  // so it feels like a native app — but keep the edit menu on text fields.
+  window.addEventListener("contextmenu", (e) => {
+    if (!(e.target as HTMLElement).closest("input, textarea")) e.preventDefault();
+  });
+
   $("settingsBtn").addEventListener("click", () => $("settings").classList.toggle("hidden"));
   password.addEventListener("input", () => store?.set(PASSWORD_KEY, password.value));
   $("reveal").addEventListener("click", () => {
