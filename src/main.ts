@@ -218,6 +218,16 @@ function onRecordKey(e: KeyboardEvent) {
 const detectLang = (): Lang =>
   navigator.language.toLowerCase().startsWith("zh") ? "zh-Hant" : "en";
 
+// Flat, monochrome (currentColor) eye icons to match the other icons.
+const EYE_SVG =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_SVG =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+function updateRevealIcon() {
+  $("reveal").innerHTML = password.type === "password" ? EYE_SVG : EYE_OFF_SVG;
+}
+
 async function copyToClipboard(text: string, btn: HTMLButtonElement) {
   await navigator.clipboard.writeText(text);
   btn.textContent = t("copied");
@@ -377,6 +387,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   applyLang();
   applyAdvanced();
   renderHotkey();
+  updateRevealIcon();
 
   document.querySelectorAll<HTMLElement>(".tab").forEach((b) =>
     b.addEventListener("click", () => setTab(b.dataset.tab as Tab)),
@@ -423,6 +434,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   password.addEventListener("input", () => store?.set(PASSWORD_KEY, password.value));
   $("reveal").addEventListener("click", () => {
     password.type = password.type === "password" ? "text" : "password";
+    updateRevealIcon();
   });
   copyBtn.addEventListener("click", () => copyToClipboard(output.value, copyBtn));
   qrBtn.addEventListener("click", toggleQr);
