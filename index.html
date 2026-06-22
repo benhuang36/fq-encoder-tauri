@@ -47,10 +47,14 @@
         <div class="card">
           <div class="card-label">
             <span data-i18n="outputLabel"></span>
-            <button id="copyBtn" class="copy hidden"></button>
+            <div class="label-actions">
+              <button id="qrBtn" class="copy hidden" data-i18n="qrBtn"></button>
+              <button id="copyBtn" class="copy hidden"></button>
+            </div>
           </div>
           <textarea id="output" readonly data-i18n-placeholder="outputPlaceholder"></textarea>
         </div>
+        <div id="qrBox" class="qrbox hidden"></div>
       </section>
 
       <!-- ── Avalanche ── -->

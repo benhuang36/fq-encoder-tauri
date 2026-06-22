@@ -25,6 +25,8 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     outputPlaceholder: "The result appears here",
     copy: "Copy",
     copied: "Copied",
+    qrBtn: "QR",
+    qr_too_long: "Text is too long to fit in a QR code.",
     footerHint: "Encode any text · Decode accepts only F U C K Y O u",
     invalid_length: "Length must be a multiple of 3 — this isn't a valid encoded string.",
     invalid_character: 'Contains an invalid character “{c}”. Encoded strings use only F U C K Y O u.',
@@ -70,6 +72,8 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     outputPlaceholder: "結果會顯示在這裡",
     copy: "複製",
     copied: "已複製",
+    qrBtn: "QR",
+    qr_too_long: "文字太長，無法放進 QR code。",
     footerHint: "Encode 任意文字 · Decode 只接受 F U C K Y O u",
     invalid_length: "輸入長度必須是 3 的倍數，這不是合法的編碼字串。",
     invalid_character: "包含非法字元「{c}」，編碼字串只能由 F U C K Y O u 組成。",
@@ -163,12 +167,31 @@ function setTab(tab: Tab) {
 const input = $<HTMLTextAreaElement>("input");
 const output = $<HTMLTextAreaElement>("output");
 const copyBtn = $<HTMLButtonElement>("copyBtn");
+const qrBtn = $<HTMLButtonElement>("qrBtn");
+const qrBox = $<HTMLElement>("qrBox");
 
 function setOutput(text: string, isError = false) {
   output.value = isError ? "" : text;
   footer.textContent = isError ? text : t("footerHint");
   footer.classList.toggle("error", isError);
-  copyBtn.classList.toggle("hidden", isError || text.length === 0);
+  const empty = isError || text.length === 0;
+  copyBtn.classList.toggle("hidden", empty);
+  qrBtn.classList.toggle("hidden", empty);
+  qrBox.classList.add("hidden"); // a new result invalidates the old QR
+  qrBox.replaceChildren();
+}
+
+async function toggleQr() {
+  if (!qrBox.classList.contains("hidden")) {
+    qrBox.classList.add("hidden");
+    return;
+  }
+  try {
+    qrBox.innerHTML = await invoke<string>("qr_svg", { text: output.value });
+    qrBox.classList.remove("hidden");
+  } catch (code) {
+    setOutput(localiseError(String(code)), true);
+  }
 }
 
 async function runEncode() {
@@ -306,4 +329,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     password.type = password.type === "password" ? "text" : "password";
   });
   copyBtn.addEventListener("click", () => copyToClipboard(output.value, copyBtn));
+  qrBtn.addEventListener("click", toggleQr);
 });

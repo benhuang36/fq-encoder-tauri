@@ -44,6 +44,20 @@ fn stego_reveal(text: String) -> Result<String, String> {
     stego::reveal(&text).map_err(|e| e.code().to_string())
 }
 
+/// Render `text` as a scannable QR code, returned as an SVG string.
+#[tauri::command]
+fn qr_svg(text: String) -> Result<String, String> {
+    use qrcode::{render::svg, QrCode};
+    let code = QrCode::new(text.as_bytes()).map_err(|_| "qr_too_long".to_string())?;
+    Ok(code
+        .render::<svg::Color>()
+        .min_dimensions(220, 220)
+        .quiet_zone(true)
+        .dark_color(svg::Color("#1c1c1e"))
+        .light_color(svg::Color("#ffffff"))
+        .build())
+}
+
 // MARK: - Helpers
 
 /// Tray menu labels (toggle, show, quit) localised by OS locale: zh* → 正體中文.
@@ -128,7 +142,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![encode, decode, stego_hide, stego_reveal])
+        .invoke_handler(tauri::generate_handler![
+            encode, decode, stego_hide, stego_reveal, qr_svg
+        ])
         .setup(|app| {
             // Menu-bar resident: no Dock icon on macOS.
             #[cfg(target_os = "macos")]

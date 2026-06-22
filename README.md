@@ -12,7 +12,8 @@ strings across both (enforced by golden-vector tests in `src-tauri/src/codec.rs`
 The UI is available in **English** and **正體中文** — auto-detected from the system
 locale, switchable from the header (`EN` / `中`), and remembered between launches.
 
-Three modes (tabs): **Codec** (encode/decode), **Avalanche** (a live visualizer —
+Three modes (tabs): **Codec** (encode/decode, with a **QR** button that turns the
+output into a scannable QR code), **Avalanche** (a live visualizer —
 flip one character and watch ~80% of the output light up, demonstrating the diffusion
 stage), and **Stego** (hide the payload inside an innocent-looking sentence using
 invisible zero-width characters, then reveal it).
