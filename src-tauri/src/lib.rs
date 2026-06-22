@@ -1,4 +1,5 @@
 mod codec;
+mod stego;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -31,6 +32,16 @@ fn encode(text: String, key: String) -> String {
 fn decode(text: String, key: String) -> Result<String, String> {
     // Return a stable error code; the frontend localises it.
     codec::decode(&text, &key).map_err(|e| e.code())
+}
+
+#[tauri::command]
+fn stego_hide(secret: String, cover: String) -> String {
+    stego::hide(&secret, &cover)
+}
+
+#[tauri::command]
+fn stego_reveal(text: String) -> Result<String, String> {
+    stego::reveal(&text).map_err(|e| e.code().to_string())
 }
 
 // MARK: - Helpers
@@ -117,7 +128,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![encode, decode])
+        .invoke_handler(tauri::generate_handler![encode, decode, stego_hide, stego_reveal])
         .setup(|app| {
             // Menu-bar resident: no Dock icon on macOS.
             #[cfg(target_os = "macos")]

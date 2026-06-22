@@ -28,23 +28,90 @@
         <p class="hint" data-i18n="passwordHint"></p>
       </section>
 
-      <div class="card">
-        <div class="card-label" data-i18n="inputLabel"></div>
-        <textarea id="input" data-i18n-placeholder="inputPlaceholder"></textarea>
-      </div>
+      <nav class="tabs">
+        <button class="tab active" data-tab="codec" data-i18n="tabCodec"></button>
+        <button class="tab" data-tab="avalanche" data-i18n="tabAvalanche"></button>
+        <button class="tab" data-tab="stego" data-i18n="tabStego"></button>
+      </nav>
 
-      <div class="actions">
-        <button id="encodeBtn" class="action">▼ Encode</button>
-        <button id="decodeBtn" class="action">▲ Decode</button>
-      </div>
-
-      <div class="card">
-        <div class="card-label">
-          <span data-i18n="outputLabel"></span>
-          <button id="copyBtn" class="copy hidden"></button>
+      <!-- ── Codec ── -->
+      <section id="tab-codec" class="tab-panel">
+        <div class="card">
+          <div class="card-label" data-i18n="inputLabel"></div>
+          <textarea id="input" data-i18n-placeholder="inputPlaceholder"></textarea>
         </div>
-        <textarea id="output" readonly data-i18n-placeholder="outputPlaceholder"></textarea>
-      </div>
+        <div class="actions">
+          <button id="encodeBtn" class="action">▼ Encode</button>
+          <button id="decodeBtn" class="action">▲ Decode</button>
+        </div>
+        <div class="card">
+          <div class="card-label">
+            <span data-i18n="outputLabel"></span>
+            <button id="copyBtn" class="copy hidden"></button>
+          </div>
+          <textarea id="output" readonly data-i18n-placeholder="outputPlaceholder"></textarea>
+        </div>
+      </section>
+
+      <!-- ── Avalanche ── -->
+      <section id="tab-avalanche" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-label" data-i18n="avInputLabel"></div>
+          <textarea id="avInput" data-i18n-placeholder="avInputPlaceholder"></textarea>
+        </div>
+        <div class="actions">
+          <button id="avFlipBtn" class="action" data-i18n="avFlip"></button>
+        </div>
+        <div class="card">
+          <div class="card-label">
+            <span data-i18n="avOutputLabel"></span>
+            <span id="avStat" class="stat"></span>
+          </div>
+          <div id="avGrid" class="grid"></div>
+        </div>
+        <p class="hint" data-i18n="avHint"></p>
+      </section>
+
+      <!-- ── Stego ── -->
+      <section id="tab-stego" class="tab-panel hidden">
+        <div class="card compact">
+          <div class="card-label" data-i18n="stSecretLabel"></div>
+          <textarea id="stSecret" class="short" data-i18n-placeholder="stSecretPlaceholder"></textarea>
+        </div>
+        <div class="card compact">
+          <div class="card-label" data-i18n="stCoverLabel"></div>
+          <textarea id="stCover" class="short" data-i18n-placeholder="stCoverPlaceholder"></textarea>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="stEncodeFirst" />
+          <span data-i18n="stEncodeFirst"></span>
+        </label>
+        <div class="actions">
+          <button id="stHideBtn" class="action" data-i18n="stHideBtn"></button>
+        </div>
+        <div class="card compact">
+          <div class="card-label">
+            <span data-i18n="stHiddenLabel"></span>
+            <button id="stHiddenCopy" class="copy hidden"></button>
+          </div>
+          <textarea id="stHidden" class="short" readonly></textarea>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="card compact">
+          <div class="card-label" data-i18n="stRevealLabel"></div>
+          <textarea id="stRevealIn" class="short" data-i18n-placeholder="stRevealPlaceholder"></textarea>
+        </div>
+        <div class="actions">
+          <button id="stRevealBtn" class="action" data-i18n="stRevealBtn"></button>
+        </div>
+        <div class="card compact">
+          <div class="card-label" data-i18n="stRevealOutLabel"></div>
+          <textarea id="stRevealOut" class="short" readonly></textarea>
+        </div>
+        <p id="stStatus" class="hint"></p>
+      </section>
 
       <footer id="footer" class="footer"></footer>
     </main>

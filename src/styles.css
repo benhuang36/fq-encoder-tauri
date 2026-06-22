@@ -169,3 +169,112 @@ textarea:focus {
 .hidden {
   display: none !important;
 }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+.tab {
+  flex: 1;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.tab.active {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+/* Compact cards (stego stacks several) */
+.card.compact {
+  flex: 0 0 auto;
+}
+textarea.short {
+  flex: 0 0 auto;
+  min-height: 58px;
+}
+
+/* Avalanche grid */
+.stat {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.grid {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: flex-start;
+  overflow: auto;
+  min-height: 110px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+}
+.grid.empty {
+  display: block;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+.cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 24px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 5px;
+}
+.cell.flash {
+  animation: flash 0.7s ease-out;
+}
+@keyframes flash {
+  0% {
+    background: #ffe14d;
+    color: #5c4ddb;
+    transform: scale(1.25);
+  }
+  100% {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    transform: scale(1);
+  }
+}
+
+/* Stego */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  opacity: 0.95;
+  cursor: pointer;
+}
+.divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  margin: 2px 0;
+}
+.hint.error {
+  color: #fff;
+  opacity: 1;
+  background: rgba(220, 40, 40, 0.4);
+  padding: 8px 12px;
+  border-radius: 10px;
+}

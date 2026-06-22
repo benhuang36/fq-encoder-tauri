@@ -12,6 +12,11 @@ strings across both (enforced by golden-vector tests in `src-tauri/src/codec.rs`
 The UI is available in **English** and **正體中文** — auto-detected from the system
 locale, switchable from the header (`EN` / `中`), and remembered between launches.
 
+Three modes (tabs): **Codec** (encode/decode), **Avalanche** (a live visualizer —
+flip one character and watch ~80% of the output light up, demonstrating the diffusion
+stage), and **Stego** (hide the payload inside an innocent-looking sentence using
+invisible zero-width characters, then reveal it).
+
 ## How it works
 
 Three reversible stages (see [`src-tauri/src/codec.rs`](src-tauri/src/codec.rs)):
@@ -56,6 +61,7 @@ matrix. On Linux, install `libwebkit2gtk-4.1-dev` (+ `libappindicator3-dev`,
 src/                  web frontend (vanilla TS + Vite): gradient/frosted UI
 src-tauri/src/
 ├── codec.rs          keyed 3-stage codec + golden-vector parity tests
+├── stego.rs          zero-width steganography (hide/reveal) + tests
 └── lib.rs            commands, tray, store-backed password, clipboard monitor
 ```
 
