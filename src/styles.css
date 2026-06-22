@@ -168,6 +168,10 @@ textarea:focus {
 }
 .action {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 12px;
   font-size: 15px;
   font-weight: 600;
@@ -177,6 +181,9 @@ textarea:focus {
   border-radius: 14px;
   cursor: pointer;
   transition: background 0.12s, transform 0.12s;
+}
+.action svg {
+  display: block;
 }
 .action:hover {
   background: rgba(255, 255, 255, 0.3);
