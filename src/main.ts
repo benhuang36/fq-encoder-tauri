@@ -178,8 +178,9 @@ const hotkeyStatus = $<HTMLElement>("hotkeyStatus");
 
 function applyAdvanced() {
   advancedToggle.checked = advanced;
-  $("tabAvalancheBtn").classList.toggle("hidden", !advanced);
-  $("tabStegoBtn").classList.toggle("hidden", !advanced);
+  // With only the Codec tab, a lone tab button is pointless — hide the whole
+  // tab bar unless advanced modes (Avalanche / Stego) are enabled.
+  document.querySelector<HTMLElement>(".tabs")!.classList.toggle("hidden", !advanced);
   if (!advanced && currentTab !== "codec") setTab("codec");
 }
 
